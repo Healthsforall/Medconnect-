@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Jodit Editor Dialog Customizations */
+.jodit-dialog__panel {
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  border: 1px solid #e2e8f0 !important;
+  overflow: hidden !important;
+}
+
+.jodit-dialog__header {
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 16px 24px !important;
+}
+
+.jodit-dialog__header-title {
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  font-family: inherit !important;
+}
+
+.jodit-dialog__content {
+  padding: 24px !important;
+}
+
+.jodit-dialog__footer {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 16px 24px !important;
+}
+
+/* Make the image properties dialog more compact */
+.jodit-properties {
+  max-width: 500px !important;
+}
+
+.jodit-ui-input__input {
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 8px 12px !important;
+  transition: all 0.2s !important;
+}
+
+.jodit-ui-input__input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.jodit-ui-button_variant_primary {
+  background-color: #2563eb !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+.jodit-ui-button_variant_primary:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Unlock ratio button styling */
+.jodit-ui-button_lock {
+  color: #64748b !important;
+  background: #f1f5f9 !important;
+  border-radius: 6px !important;
+  padding: 4px !important;
+}
+
+.jodit-ui-button_lock:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}

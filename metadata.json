@@ -1,0 +1,7 @@
+{
+  "name": "Global MedConnect",
+  "description": "A global networking platform for medical supplies and products.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

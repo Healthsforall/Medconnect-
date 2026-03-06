@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Send, X } from 'lucide-react';
 import JoditEditor from 'jodit-react';
+import { toast } from 'sonner';
 
 export default function PostEditor({ onPostCreated }: { onPostCreated?: (content: string) => void }) {
   const [content, setContent] = useState('');
@@ -47,7 +48,7 @@ export default function PostEditor({ onPostCreated }: { onPostCreated?: (content
     if (onPostCreated) {
       onPostCreated(content);
     } else {
-      alert('Post published successfully!');
+      toast.success('Post published successfully!');
     }
     setContent('');
   };

@@ -1,10 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Camera, Save, MapPin, Briefcase, Globe, Mail, Phone, Facebook, GraduationCap, Heart, Clock, Image as ImageIcon, UserPlus, Smile, Map, Palette, Video, Eye, Plus, Edit2 } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+import { Camera, Save, MapPin, Briefcase, Globe, Mail, Phone, Facebook, GraduationCap, Heart, Clock, Image as ImageIcon, UserPlus, Smile, Map, Palette, Video, Eye, Plus, Edit2, MessageSquare, Hand, Send, X } from 'lucide-react';
 import { Country, City, State } from 'country-state-city';
+import JoditEditor from 'jodit-react';
 import PostCard, { Post } from './PostCard';
 import PostEditor from './PostEditor';
 
 interface ProfileProps {
+  viewingProfile?: string | null;
+  onNavigateToProfile?: (name: string) => void;
+  onNavigateToMessages?: (name: string) => void;
   posts: Post[];
   onPostCreated: (content: string) => void;
   onLike: (postId: string) => void;
@@ -40,11 +45,12 @@ const getRobustCities = (countryCode: string) => {
   return uniqueNames.sort((a, b) => a.localeCompare(b)).map(name => ({ name }));
 };
 
-export default function Profile({ posts, onPostCreated, onLike, onShare, onCommentToggle, onAddComment, expandedComments, commentInputs, setCommentInputs }: ProfileProps) {
+export default function Profile({ viewingProfile, onNavigateToProfile, onNavigateToMessages, posts, onPostCreated, onLike, onShare, onCommentToggle, onAddComment, expandedComments, commentInputs, setCommentInputs }: ProfileProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [profileTab, setProfileTab] = useState<'all' | 'photo' | 'reels'>('all');
-  const [profile, setProfile] = useState(() => {
+  const [requestStatus, setRequestStatus] = useState<'none' | 'pending' | 'friends'>('none');
+  const [myProfile, setMyProfile] = useState(() => {
     const savedProfile = localStorage.getItem('medconnect_profile');
     if (savedProfile) {
       try {
@@ -72,25 +78,64 @@ export default function Profile({ posts, onPostCreated, onLike, onShare, onComme
   });
 
   useEffect(() => {
-    localStorage.setItem('medconnect_profile', JSON.stringify(profile));
-  }, [profile]);
+    localStorage.setItem('medconnect_profile', JSON.stringify(myProfile));
+  }, [myProfile]);
+
+  const isOwnProfile = !viewingProfile || viewingProfile === myProfile.name;
+
+  const profile = useMemo(() => {
+    if (isOwnProfile) return myProfile;
+    
+    // Generate a mock profile for other users
+    return {
+      name: viewingProfile,
+      bio: `Medical professional based in the United States. Passionate about healthcare innovation and connecting with others in the field.`,
+      country: 'US',
+      city: 'New York',
+      businessType: 'Healthcare Professional',
+      email: `${viewingProfile.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+      phone: '+1 555-0000',
+      facebook: `facebook.com/${viewingProfile.toLowerCase().replace(/\s+/g, '')}`,
+      age: '32',
+      education: 'Medical University',
+      status: 'Married',
+      workplace: 'City Hospital',
+      avatar: `https://picsum.photos/seed/${viewingProfile}/200/200`,
+      cover: `https://picsum.photos/seed/${viewingProfile}cover/1200/400`
+    };
+  }, [isOwnProfile, myProfile, viewingProfile]);
 
   const availableCities = useMemo(() => {
     return getRobustCities(profile.country);
   }, [profile.country]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    if (!isOwnProfile) return;
+    setMyProfile({ ...myProfile, [e.target.name]: e.target.value });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'cover') => {
+    if (!isOwnProfile) return;
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfile({ ...profile, [type]: reader.result as string });
+        setMyProfile({ ...myProfile, [type]: reader.result as string });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFriendRequest = () => {
+    if (requestStatus === 'none') {
+      setRequestStatus('pending');
+      toast.success(`Friend request sent to ${profile.name}`);
+      setTimeout(() => {
+        toast(`Notification: ${profile.name} received your friend request.`, { icon: '🔔' });
+      }, 1500);
+    } else if (requestStatus === 'pending') {
+      setRequestStatus('none');
+      toast.info(`Friend request to ${profile.name} canceled`);
     }
   };
 
@@ -99,7 +144,7 @@ export default function Profile({ posts, onPostCreated, onLike, onShare, onComme
       {/* Cover Photo */}
       <div className="relative h-64 sm:h-80 w-full rounded-b-2xl overflow-hidden group">
         <img src={profile.cover} alt="Cover" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-        {isEditing && (
+        {isEditing && isOwnProfile && (
           <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
             <input 
               type="file" 
@@ -126,7 +171,7 @@ export default function Profile({ posts, onPostCreated, onLike, onShare, onComme
                 className="w-full h-full rounded-full border-4 border-white shadow-lg object-cover bg-white"
                 referrerPolicy="no-referrer"
               />
-              {isEditing && (
+              {isEditing && isOwnProfile && (
                 <label className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <input 
                     type="file" 
@@ -148,28 +193,67 @@ export default function Profile({ posts, onPostCreated, onLike, onShare, onComme
 
           {/* Action Buttons */}
           <div className="mt-4 sm:mt-0 pb-4">
-            {isEditing ? (
-              <button 
-                onClick={() => setIsEditing(false)}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
-              >
-                <Save className="h-4 w-4" />
-                Save Profile
-              </button>
+            {isOwnProfile ? (
+              isEditing ? (
+                <button 
+                  onClick={() => setIsEditing(false)}
+                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all active:scale-95 shadow-sm"
+                >
+                  <Save className="h-4 w-4" />
+                  Save Profile
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <button 
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add to Story
+                  </button>
+                  <button 
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    Edit Profile
+                  </button>
+                </div>
+              )
             ) : (
               <div className="flex items-center gap-2">
                 <button 
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                  onClick={handleFriendRequest}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all active:scale-95 shadow-sm ${
+                    requestStatus === 'pending' 
+                      ? 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 >
-                  <Plus className="h-4 w-4" />
-                  Add to Story
+                  {requestStatus === 'pending' ? (
+                    <>
+                      <X className="h-4 w-4" />
+                      Cancel Request
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      Add Friend
+                    </>
+                  )}
                 </button>
                 <button 
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 transition-colors shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 active:scale-95 transition-all shadow-sm"
+                  onClick={() => toast.success(`You poked ${profile.name}!`)}
                 >
-                  <Edit2 className="h-4 w-4" />
-                  Edit Profile
+                  <Hand className="h-4 w-4" />
+                  Poke
+                </button>
+                <button 
+                  onClick={() => onNavigateToMessages?.(profile.name)}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 active:scale-95 transition-all shadow-sm"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Message
                 </button>
               </div>
             )}
@@ -326,10 +410,14 @@ export default function Profile({ posts, onPostCreated, onLike, onShare, onComme
                   <p className="text-sm text-slate-500 mb-4">1,042 friends</p>
                   
                   <div className="grid grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div key={i} className="flex flex-col items-center gap-2 cursor-pointer group">
-                        <img src={`https://picsum.photos/seed/friend${i}/150/150`} alt="Friend" className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover group-hover:opacity-90 transition-opacity border border-slate-100 shadow-sm" />
-                        <span className="text-xs font-semibold text-slate-800 text-center truncate w-full">Friend {i}</span>
+                    {['Hiten Patel', 'Sarah Jenkins', 'Michael Chen', 'Emma Watson', 'David Smith', 'Jessica Alba'].map((name, i) => (
+                      <div 
+                        key={i} 
+                        className="flex flex-col items-center gap-2 cursor-pointer group"
+                        onClick={() => onNavigateToProfile?.(name)}
+                      >
+                        <img src={`https://picsum.photos/seed/${name.split(' ')[0]}/150/150`} alt={name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover group-hover:opacity-90 transition-opacity border border-slate-100 shadow-sm" />
+                        <span className="text-xs font-semibold text-slate-800 text-center truncate w-full">{name}</span>
                       </div>
                     ))}
                   </div>

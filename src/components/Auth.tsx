@@ -131,7 +131,7 @@ export default function Auth({ onLogin }: AuthProps) {
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all active:scale-95"
             >
               {isLogin ? 'Sign in' : showCodeInput ? 'Verify & Create Account' : 'Continue'}
             </button>
@@ -153,7 +153,7 @@ export default function Auth({ onLogin }: AuthProps) {
               <button
                 type="button"
                 onClick={onLogin}
-                className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-300 rounded-md shadow-sm bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-300 rounded-md shadow-sm bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -177,7 +177,7 @@ export default function Auth({ onLogin }: AuthProps) {
               <button
                 type="button"
                 onClick={onLogin}
-                className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-300 rounded-md shadow-sm bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-300 rounded-md shadow-sm bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
               >
                 <Apple className="h-5 w-5 text-slate-900" />
               </button>
@@ -191,7 +191,7 @@ export default function Auth({ onLogin }: AuthProps) {
               setIsLogin(!isLogin);
               setShowCodeInput(false);
             }}
-            className="text-sm font-medium text-blue-600 hover:text-blue-500"
+            className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-all active:scale-95"
           >
             {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>

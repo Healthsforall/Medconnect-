@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Users, UserCircle, LogOut, Menu, X, Home } from 'lucide-react';
+import { Globe, Users, UserCircle, LogOut, Menu, X, Home, MessageSquare } from 'lucide-react';
 import Directory from './Directory';
 import Profile from './Profile';
+import Messages from './Messages';
 import PostEditor from './PostEditor';
 import PostCard, { Post, Comment } from './PostCard';
 
@@ -9,15 +10,29 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
-type Tab = 'feed' | 'directory' | 'profile';
+type Tab = 'feed' | 'directory' | 'profile' | 'messages';
 
 export default function Dashboard({ onLogout }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>('feed');
+  const [viewingProfile, setViewingProfile] = useState<string | null>(null);
+  const [messagingUser, setMessagingUser] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  const handleNavigateToProfile = (name: string | null) => {
+    setViewingProfile(name);
+    setActiveTab('profile');
+    window.scrollTo(0, 0);
+  };
+
+  const handleNavigateToMessages = (name: string) => {
+    setMessagingUser(name);
+    setActiveTab('messages');
+    window.scrollTo(0, 0);
+  };
 
   const [posts, setPosts] = useState<Post[]>(() => {
     const savedPosts = localStorage.getItem('medconnect_posts');
@@ -136,6 +151,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
   const navigation = [
     { id: 'feed', name: 'Global Feed', icon: Home },
     { id: 'directory', name: 'Network Directory', icon: Users },
+    { id: 'messages', name: 'Messages', icon: MessageSquare },
     { id: 'profile', name: 'My Profile', icon: UserCircle },
   ] as const;
 
@@ -160,7 +176,10 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setActiveTab(item.id)}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        if (item.id === 'profile') setViewingProfile(null);
+                      }}
                       className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
                         activeTab === item.id
                           ? 'border-blue-500 text-slate-900'
@@ -178,7 +197,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
               <button
                 onClick={onLogout}
-                className="inline-flex items-center px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 active:scale-95 transition-all"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
@@ -208,6 +227,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                     key={item.id}
                     onClick={() => {
                       setActiveTab(item.id);
+                      if (item.id === 'profile') setViewingProfile(null);
                       setIsMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
@@ -254,6 +274,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                   isExpanded={!!expandedComments[post.id]}
                   commentInput={commentInputs[post.id] || ''}
                   setCommentInput={(val) => setCommentInputs(prev => ({ ...prev, [post.id]: val }))}
+                  onNavigateToProfile={handleNavigateToProfile}
                 />
               ))}
             </div>
@@ -261,9 +282,13 @@ export default function Dashboard({ onLogout }: DashboardProps) {
         )}
         
         {activeTab === 'directory' && <Directory />}
+        {activeTab === 'messages' && <Messages initialSelectedUser={messagingUser} />}
         {activeTab === 'profile' && (
           <Profile 
-            posts={posts.filter(p => p.author === 'Jane Doe')}
+            viewingProfile={viewingProfile}
+            onNavigateToProfile={handleNavigateToProfile}
+            onNavigateToMessages={handleNavigateToMessages}
+            posts={posts.filter(p => p.author === (viewingProfile || 'Jane Doe'))}
             onPostCreated={handlePostCreated}
             onLike={handleLike}
             onShare={handleShare}

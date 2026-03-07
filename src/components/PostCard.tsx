@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, MessageCircle, Share2, Eye, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Eye, Send, ThumbsUp } from 'lucide-react';
 
 export interface Comment {
   id: string;
@@ -65,7 +65,7 @@ export default function PostCard({ post, onLike, onShare, onCommentToggle, onAdd
       {/* Post Stats */}
       <div className="flex items-center justify-between text-xs text-slate-500 py-3 border-y border-slate-100 mb-2">
         <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {post.likes}</span>
+          <span className="flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" /> {post.likes}</span>
           <span className="flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" /> {post.comments.length}</span>
           <span className="flex items-center gap-1"><Share2 className="h-3.5 w-3.5" /> {post.shares}</span>
         </div>
@@ -76,9 +76,9 @@ export default function PostCard({ post, onLike, onShare, onCommentToggle, onAdd
       <div className="flex items-center gap-2 mb-4">
         <button 
           onClick={() => onLike(post.id)}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 ${post.isLiked ? 'text-rose-600 bg-rose-50 hover:bg-rose-100' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 ${post.isLiked ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-slate-600 hover:bg-slate-50'}`}
         >
-          <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
+          <ThumbsUp className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
           {post.isLiked ? 'Liked' : 'Like'}
         </button>
         <button 

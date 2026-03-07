@@ -70,3 +70,8 @@
   background: #e2e8f0 !important;
   color: #0f172a !important;
 }
+
+/* Hide Jodit watermark */
+.jodit-status-bar-link {
+  display: none !important;
+}

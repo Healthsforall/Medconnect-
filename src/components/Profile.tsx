@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { Camera, Save, MapPin, Briefcase, Globe, Mail, Phone, Facebook, GraduationCap, Heart, Clock, Image as ImageIcon, UserPlus, Smile, Map, Palette, Video, Eye, Plus, Edit2, MessageSquare, Hand, Send, X } from 'lucide-react';
+import { Camera, Save, MapPin, Briefcase, Globe, Mail, Phone, Facebook, GraduationCap, Heart, Clock, Image as ImageIcon, UserPlus, Smile, Map, Palette, Video, Eye, Plus, Edit2, MessageSquare, Hand, Send, X, Users, Lock, Globe2 } from 'lucide-react';
 import { Country, City, State } from 'country-state-city';
-import JoditEditor from 'jodit-react';
 import PostCard, { Post } from './PostCard';
 import PostEditor from './PostEditor';
 
@@ -10,6 +9,7 @@ interface ProfileProps {
   viewingProfile?: string | null;
   onNavigateToProfile?: (name: string) => void;
   onNavigateToMessages?: (name: string) => void;
+  onNavigateToGroup?: () => void;
   posts: Post[];
   onPostCreated: (content: string) => void;
   onLike: (postId: string) => void;
@@ -45,7 +45,7 @@ const getRobustCities = (countryCode: string) => {
   return uniqueNames.sort((a, b) => a.localeCompare(b)).map(name => ({ name }));
 };
 
-export default function Profile({ viewingProfile, onNavigateToProfile, onNavigateToMessages, posts, onPostCreated, onLike, onShare, onCommentToggle, onAddComment, expandedComments, commentInputs, setCommentInputs }: ProfileProps) {
+export default function Profile({ viewingProfile, onNavigateToProfile, onNavigateToMessages, onNavigateToGroup, posts, onPostCreated, onLike, onShare, onCommentToggle, onAddComment, expandedComments, commentInputs, setCommentInputs }: ProfileProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [profileTab, setProfileTab] = useState<'all' | 'photo' | 'reels'>('all');
@@ -123,6 +123,14 @@ export default function Profile({ viewingProfile, onNavigateToProfile, onNavigat
         setMyProfile({ ...myProfile, [type]: reader.result as string });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleStoryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      toast.success('Story added successfully!');
+      e.target.value = '';
     }
   };
 
@@ -204,11 +212,24 @@ export default function Profile({ viewingProfile, onNavigateToProfile, onNavigat
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <button 
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all active:scale-95 shadow-sm"
+                  <label 
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all active:scale-95 shadow-sm cursor-pointer"
                   >
+                    <input 
+                      type="file" 
+                      accept="image/*,video/*" 
+                      className="hidden" 
+                      onChange={handleStoryUpload}
+                    />
                     <Plus className="h-4 w-4" />
                     Add to Story
+                  </label>
+                  <button 
+                    onClick={() => onNavigateToGroup?.()}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Users className="h-4 w-4" />
+                    Group
                   </button>
                   <button 
                     onClick={() => setIsEditing(true)}

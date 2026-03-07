@@ -3,6 +3,7 @@ import { Globe, Users, UserCircle, LogOut, Menu, X, Home, MessageSquare } from '
 import Directory from './Directory';
 import Profile from './Profile';
 import Messages from './Messages';
+import GroupPage from './GroupPage';
 import PostEditor from './PostEditor';
 import PostCard, { Post, Comment } from './PostCard';
 
@@ -10,7 +11,7 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
-type Tab = 'feed' | 'directory' | 'profile' | 'messages';
+type Tab = 'feed' | 'directory' | 'profile' | 'messages' | 'group';
 
 export default function Dashboard({ onLogout }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>('feed');
@@ -31,6 +32,11 @@ export default function Dashboard({ onLogout }: DashboardProps) {
   const handleNavigateToMessages = (name: string) => {
     setMessagingUser(name);
     setActiveTab('messages');
+    window.scrollTo(0, 0);
+  };
+
+  const handleNavigateToGroup = () => {
+    setActiveTab('group');
     window.scrollTo(0, 0);
   };
 
@@ -288,7 +294,22 @@ export default function Dashboard({ onLogout }: DashboardProps) {
             viewingProfile={viewingProfile}
             onNavigateToProfile={handleNavigateToProfile}
             onNavigateToMessages={handleNavigateToMessages}
+            onNavigateToGroup={handleNavigateToGroup}
             posts={posts.filter(p => p.author === (viewingProfile || 'Jane Doe'))}
+            onPostCreated={handlePostCreated}
+            onLike={handleLike}
+            onShare={handleShare}
+            onCommentToggle={toggleComments}
+            onAddComment={handleAddComment}
+            expandedComments={expandedComments}
+            commentInputs={commentInputs}
+            setCommentInputs={setCommentInputs}
+          />
+        )}
+        {activeTab === 'group' && (
+          <GroupPage 
+            onNavigateToProfile={handleNavigateToProfile}
+            posts={posts.filter(p => p.author === 'Group')}
             onPostCreated={handlePostCreated}
             onLike={handleLike}
             onShare={handleShare}

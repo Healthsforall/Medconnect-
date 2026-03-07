@@ -24,6 +24,10 @@ export default function PostEditor({ onPostCreated }: { onPostCreated?: (content
     uploader: {
       insertImageAsBase64URI: true
     },
+    showCharsCounter: false,
+    showWordsCounter: false,
+    showXPathInStatusbar: false,
+    hidePoweredByJodit: true,
     image: {
       editSrc: false,
       editTitle: false,
